@@ -1,59 +1,72 @@
 #include "get_next_line.h"
-#include <stdio.h>
-char	*find_next_line(int fd, char *line, char *buf)
-{
-	size_t	i;
-	int		f;
 
-	i = 0;
-	printf("\n3\n");
-	while (buf[i] != '\n' || buf[i] != '\0')
-		i++;
-	printf("5");
-	line = (char *)malloc(i * sizeof(char));
-	if (!line)
-		return (NULL);
-	printf("\n4\n");
-	while (i >= 0)
+char	*ft_remainder(char **tail)
+{
+	char		*line;
+	char		*pn;
+	char		*tmp_tail;
+
+	if (*tail != NULL)
 	{
-		line[i] = buf[i];
-		i--;
+		if (ft_strchr(*tail, '\n'))
+		{
+			pn = ft_strchr(*tail, '\n');
+			tmp_tail = ft_strdup(pn + 1);
+			*(pn + 1) = '\0';
+			line = ft_strdup(*tail);
+			free(*tail);
+			*tail = tmp_tail;
+		}
+		else
+		{
+			line = *tail;
+			*tail = NULL;
+		}
+	}
+	else
+		line = ft_strdup("");
+	return (line);
+}
+
+char	*ft_reading(int fd, char *line, char **tail, int rd)
+{
+	char	buffer[BUFFER_SIZE + 1];
+	char	*tmp;
+	char	*pn;
+
+	while (rd > 0 && !ft_strchr(line, '\n') && !(*tail))
+	{
+		rd = read(fd, buffer, BUFFER_SIZE);
+		if (rd == 0 && *line == '\0')
+		{
+			free(line);
+			return (NULL);
+		}
+		buffer[rd] = '\0';
+		if (ft_strchr(buffer, '\n'))
+		{
+			pn = ft_strchr(buffer, '\n');
+			*tail = ft_strdup(pn + 1);
+			*(pn + 1) = '\0';
+		}
+		tmp = line;
+		line = ft_strjoin(line, buffer);
+		free(tmp);
 	}
 	return (line);
 }
 
 char	*get_next_line(int fd)
 {
+	static char	*tail;
 	char		*line;
-	static char	*save;
-	int			f;
+	char		buf[1];
+	int			rd;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE < 0 || read(fd, buf, 0) < 0)
 		return (NULL);
-	line = NULL;
-	save = NULL;
-	printf("\n1\n");
-	/*if (!*save)
-	{
-		printf("\n5\n");
-		read(fd, save, BUFFER_SIZE);
-		printf("\n4\n");
-		line = find_next_line(fd, line, save);
-	}*/
-	f = read(fd, save, BUFFER_SIZE);
-	if (f < 0)
-	{
-		printf("\ninvalid fd\n");
-		return (NULL);
-	}
-	line = find_next_line(fd, line, save);
-	printf("\n2\n");
+	rd = 1;
+	line = ft_remainder(&tail);
+	line = ft_reading(fd, line, &tail, rd);
 	return (line);
 }
-
-int	main(void)
-{
-	get_next_line(156);
-	return 0;
-}
-

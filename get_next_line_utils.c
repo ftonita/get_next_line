@@ -1,84 +1,71 @@
 #include "get_next_line.h"
 
+size_t	ft_strlen(const char *str)
+{
+	size_t	i;
+
+	if (str == NULL)
+		return (0);
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
 char	*ft_strchr(const char *s, int c)
 {
-	while (*s != (unsigned char)c && *s)
-		s++;
-	if (*s == (unsigned char)c)
-		return ((char *)s);
-	return (NULL);
-}
-/*
-char	*ft_strjoin(char const *s1, char const *s2)
-{
-	char	*s;
+	char	*str;
 
-	if (!s1 || !s2)
-		return (0);
-	s = (char *)malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (!s)
-		return (0);
-	ft_strlcpy(s, s1, (ft_strlen(s1) + ft_strlen(s2) + 1));
-	ft_strlcat(&s[ft_strlen(s1)], s2, (ft_strlen(s1) + ft_strlen(s2) + 1));
-	return (s);
-}*/
-
-size_t	ft_strlen(const char	*s)
-{
-	int	n;
-
-	n = 0;
-	while (*s)
+	str = (char *)s;
+	while (*str != (unsigned char)c)
 	{
-		n++;
-		s++;
+		if (*str == '\0')
+			return (NULL);
+		str++;
 	}
-	return (n);
+	return (str);
+}
+
+char	*ft_strjoin(char *s1, char *s2)
+{
+	int		i;
+	int		j;
+	char	*mem;
+
+	i = 0;
+	j = 0;
+	if (s1 == NULL && s2 == NULL)
+		return (NULL);
+	mem = (char *)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	if (mem == NULL)
+		return (NULL);
+	while (s1 && s1[i])
+		mem[j++] = s1[i++];
+	i = 0;
+	while (s2 && s2[i])
+		mem[j++] = s2[i++];
+	mem[j] = '\0';
+	return (mem);
 }
 
 char	*ft_strdup(const char *s1)
 {
-	char	*s;
 	size_t	i;
+	size_t	len;
+	char	*mem;
+	char	*str;
 
-	s = (char *)malloc(sizeof(char) * (ft_strlen(s1) + 1));
-	if (!s)
+	str = (char *)s1;
+	len = ft_strlen((char *)s1);
+	mem = (char *)malloc(sizeof(char) * (len + 1));
+	if (!mem)
 		return (NULL);
 	i = 0;
-	while (i <= ft_strlen(s1))
+	while (i < len)
 	{
-		s[i] = s1[i];
+		mem[i] = str[i];
 		i++;
 	}
-	return (s);
-}
-
-
-size_t	ft_strlcat(char	*dst, const char *src, size_t dstsize)
-{
-	char		*d;
-	const char	*s;
-	size_t		n;
-	size_t		dl;
-
-	n = dstsize;
-	s = src;
-	d = dst;
-	while (n-- != 0 && *d != '\0')
-		d++;
-	dl = d - dst;
-	n = dstsize - dl;
-	if (n == 0)
-		return (dl + ft_strlen (s));
-	while (*s != '\0')
-	{
-		if (n != 1)
-		{
-			*d++ = *s;
-			n--;
-		}
-		s++;
-	}
-	*d = '\0';
-	return (dl + (s - src));
+	mem[i] = '\0';
+	return (mem);
 }
