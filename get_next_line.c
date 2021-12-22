@@ -1,34 +1,34 @@
 #include "get_next_line.h"
 
-char	*ft_remainder(char **tail)
+char	*ft_remind(char **tail)
 {
-	char		*line;
-	char		*pn;
-	char		*tmp_tail;
+	char		*l;
+	char		*new_line;
+	char		*temp;
 
 	if (*tail != NULL)
 	{
 		if (ft_strchr(*tail, '\n'))
 		{
-			pn = ft_strchr(*tail, '\n');
-			tmp_tail = ft_strdup(pn + 1);
-			*(pn + 1) = '\0';
-			line = ft_strdup(*tail);
+			new_line = ft_strchr(*tail, '\n');
+			temp = ft_strdup(new_line + 1);
+			*(new_line + 1) = '\0';
+			l = ft_strdup(*tail);
 			free(*tail);
-			*tail = tmp_tail;
+			*tail = temp;
 		}
 		else
 		{
-			line = *tail;
+			l = *tail;
 			*tail = NULL;
 		}
 	}
 	else
-		line = ft_strdup("");
-	return (line);
+		l = ft_strdup("");
+	return (l);
 }
 
-char	*ft_reading(int fd, char *line, char **tail, int rd)
+char	*ft_reader(int fd, char *line, char **tail, int rd)
 {
 	char	buffer[BUFFER_SIZE + 1];
 	char	*tmp;
@@ -66,7 +66,7 @@ char	*get_next_line(int fd)
 	if (fd < 0 || BUFFER_SIZE < 0 || read(fd, buf, 0) < 0)
 		return (NULL);
 	rd = 1;
-	line = ft_remainder(&tail);
-	line = ft_reading(fd, line, &tail, rd);
+	line = ft_remind(&tail);
+	line = ft_reader(fd, line, &tail, rd);
 	return (line);
 }
