@@ -1,72 +1,92 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ftonita <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/24 03:19:08 by ftonita           #+#    #+#             */
+/*   Updated: 2021/12/24 03:19:10 by ftonita          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
+#include <stdio.h>
 
-char	*ft_remind(char **tail)
+
+char	*ft_end(char *line, char *tail)
 {
-	char		*l;
-	char		*new_line;
-	char		*temp;
+	int	i;
+	int	j;
+	int	tmp;
 
-	if (*tail != NULL)
+	i = 0;
+	j = 0;
+	if (line == NULL)
+		return (NULL);
+	while (line[i] != '\n' && line[i] != '\0')
+		i++;
+	i++;
+	tmp = i;
+	while (line[i])
 	{
-		if (ft_strchr(*tail, '\n'))
-		{
-			new_line = ft_strchr(*tail, '\n');
-			temp = ft_strdup(new_line + 1);
-			*(new_line + 1) = '\0';
-			l = ft_strdup(*tail);
-			free(*tail);
-			*tail = temp;
-		}
-		else
-		{
-			l = *tail;
-			*tail = NULL;
-		}
+		tail[j] = line[i++];
+		j++;
 	}
-	else
-		l = ft_strdup("");
-	return (l);
+	line[tmp] = '\0';
+	while (j < BUFFER_SIZE)
+		tail[j++] = '\0';
+	return (line);
 }
 
-char	*ft_reader(int fd, char *line, char **tail, int rd)
+char	*ft_reader(int fd, char *line, char *tail)
 {
-	char	buffer[BUFFER_SIZE + 1];
-	char	*tmp;
-	char	*pn;
+	if (line == NULL)
+		return (NULL);
 
-	while (rd > 0 && !ft_strchr(line, '\n') && !(*tail))
+	while (ft_strchr(line, '\n') == 0 )
 	{
-		rd = read(fd, buffer, BUFFER_SIZE);
-		if (rd == 0 && *line == '\0')
+		if (read(fd, tail, BUFFER_SIZE) == 0)
 		{
-			free(line);
-			return (NULL);
+
+			
+		printf("\n line: %s\n", line);
+		printf("\n tail: %s\n", tail);
+		
+			line = ft_end(line, tail);
+			return (line);
 		}
-		buffer[rd] = '\0';
-		if (ft_strchr(buffer, '\n'))
-		{
-			pn = ft_strchr(buffer, '\n');
-			*tail = ft_strdup(pn + 1);
-			*(pn + 1) = '\0';
-		}
-		tmp = line;
-		line = ft_strjoin(line, buffer);
-		free(tmp);
+		line = ft_strjoin(line, tail);
 	}
 	return (line);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*tail;
+	static char	tail[BUFFER_SIZE];
 	char		*line;
-	char		buf[1];
-	int			rd;
 
-	if (fd < 0 || BUFFER_SIZE < 0 || read(fd, buf, 0) < 0)
+	line = (char *)malloc(sizeof(char) * 1);
+	if (!line)
 		return (NULL);
-	rd = 1;
-	line = ft_remind(&tail);
-	line = ft_reader(fd, line, &tail, rd);
+	line[0] = '\0';
+	if (read(fd, tail, 0) < 0 || BUFFER_SIZE < 0)
+	{
+		free(line);
+		return (NULL);
+	}
+	line = ft_strjoin(line, tail);
+	if (!ft_strlen(line))
+	{
+		if (read(fd, tail, BUFFER_SIZE) == 0)
+		{
+			free(line);
+			return (NULL);
+		}
+		else
+			line = ft_strjoin(line, tail);
+	}
+	line = ft_reader(fd, line, tail);
+	line = ft_end(line, tail);
 	return (line);
 }
